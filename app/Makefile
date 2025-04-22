@@ -1,4 +1,4 @@
-run-dist:
+run:
 	./build/install/app/bin/app
 
 install:
