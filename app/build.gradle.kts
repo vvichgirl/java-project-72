@@ -3,6 +3,7 @@ plugins {
     checkstyle
     jacoco
     id("com.github.ben-manes.versions") version "0.52.0"
+    id("org.sonarqube") version "6.0.1.5171"
 }
 
 group = "hexlet.code"
@@ -28,13 +29,9 @@ tasks.jacocoTestReport {
     }
 }
 
-plugins {
-    id("org.sonarqube") version "6.0.1.5171"
-}
-
 sonar {
     properties {
-        property("sonar.projectKey", "vvichgirl_java-project-78")
+        property("sonar.projectKey", "vvichgirl_java-project-72")
         property("sonar.organization", "vvichgirl")
         property("sonar.host.url", "https://sonarcloud.io")
     }
