@@ -16,4 +16,7 @@ test:
 report:
 	./gradlew jacocoTestReport
 
+sonar:
+	./gradlew sonar
+
 .PHONY: build

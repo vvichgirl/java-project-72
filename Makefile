@@ -17,4 +17,4 @@ report:
 	make -C app report
 
 sonar:
-	./gradlew sonar
+	make -C app sonar
