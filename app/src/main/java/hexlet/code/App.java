@@ -1,6 +1,7 @@
 package hexlet.code;
 
 import controller.RootController;
+import controller.UrlsController;
 import io.javalin.Javalin;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -11,7 +12,13 @@ import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.ResourceCodeResolver;
 
+import repository.BaseRepository;
 import util.NamedRoutes;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.sql.SQLException;
+import java.util.stream.Collectors;
 
 public class App {
     public static Javalin getApp() {
@@ -19,12 +26,28 @@ public class App {
         hikariConfig.setJdbcUrl(getJdbcUrl());
 
         var dataSource = new HikariDataSource(hikariConfig);
+        var url = App.class.getClassLoader().getResourceAsStream("schema.sql");
+        var sql = new BufferedReader(new InputStreamReader(url))
+                .lines().collect(Collectors.joining("\n"));
+
+        try (var connection = dataSource.getConnection();
+             var statement = connection.createStatement()) {
+            statement.execute(sql);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        BaseRepository.dataSource = dataSource;
 
         var app = Javalin.create(config -> {
             config.bundledPlugins.enableDevLogging();
             config.fileRenderer(new JavalinJte(createTemplateEngine()));
         });
         app.get(NamedRoutes.rootPath(), RootController::index);
+        app.post(NamedRoutes.urlsPath(), UrlsController::create);
+        app.get(NamedRoutes.urlsPath(), UrlsController::index);
+        app.get(NamedRoutes.urlPath("{id}"), UrlsController::show);
+        app.get(NamedRoutes.urlCheck("{id}"), UrlsController::check);
+
         return app;
     }
 

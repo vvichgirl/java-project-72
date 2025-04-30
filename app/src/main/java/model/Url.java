@@ -7,11 +7,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Url {
-    private int id;
+    private Long id;
     private String name;
     private Timestamp createdAt;
 
-    public Url(String name) {
+    public Url(String name, Timestamp createdAt) {
         this.name = name;
+        this.createdAt = createdAt;
     }
 }
