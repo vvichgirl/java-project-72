@@ -1,0 +1,54 @@
+package controller;
+
+import io.javalin.http.Context;
+import io.javalin.http.NotFoundResponse;
+
+import kong.unirest.core.HttpResponse;
+import kong.unirest.core.Unirest;
+import model.Url;
+import model.UrlCheck;
+import repository.UrlChecksRepository;
+import repository.UrlsRepository;
+import util.NamedRoutes;
+
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class UrlChecksController {
+
+    public static void create(Context ctx) throws SQLException {
+        Long idUrl = ctx.pathParamAsClass("id", Long.class).get();
+        Url url = UrlsRepository.findById(idUrl)
+                .orElseThrow(() -> new NotFoundResponse("Url not found"));
+        String urlTitle = url.getName();
+
+        try {
+            HttpResponse<String> result = Unirest.get(urlTitle).asString();
+            int statusCode = result.getStatus();
+            String body = result.getBody();
+
+            Document html = Jsoup.parse(body);
+            String title = html.title();
+            String h1 = html.body().getElementsByTag("h1").text();
+            String description = html.select("meta[name=description]").attr("content");
+
+            Date currentDate = new Date();
+            Timestamp createdAt = new Timestamp(currentDate.getTime());
+
+            UrlCheck urlCheckObj = new UrlCheck(statusCode, title, h1, description, idUrl, createdAt);
+            UrlChecksRepository.save(urlCheckObj);
+
+            ctx.redirect(NamedRoutes.urlPath(idUrl));
+        } catch (Exception e) {
+            ctx.sessionAttribute("flash", "Некорректный адрес");
+            ctx.sessionAttribute("flash-type", "danger");
+            ctx.redirect(NamedRoutes.urlPath(idUrl));
+        }
+
+    }
+
+}

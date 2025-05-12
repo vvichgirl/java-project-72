@@ -1,5 +1,7 @@
 @import dto.urls.UrlsPage
 @import util.NamedRoutes
+@import java.time.format.DateTimeFormatter
+@import java.util.Date
 @param UrlsPage page
 
 @template.layout.page(
@@ -26,10 +28,21 @@
                   <td>
                     <a href="${NamedRoutes.urlPath(url.getId())}">${url.getName()}</a>
                   </td>
-                  <td>
-                  </td>
-                  <td>
-                  </td>
+                  @if(page.getLastChecks() != null && page.getLastChecks().get(url.getId()) != null)
+                    <td>
+                      !{DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+                        String dateCheck = dtf.format(page.getLastChecks().get(url.getId()).getCreatedAt().toLocalDateTime());}
+                      ${dateCheck}
+                    </td>
+                    <td>
+                      ${page.getLastChecks().get(url.getId()).getStatusCode()}
+                    </td>
+                  @else
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                  @endif
                 </tr>
               @endfor
             </tbody>

@@ -5,6 +5,8 @@ import dto.urls.UrlsPage;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 import model.Url;
+import model.UrlCheck;
+import repository.UrlChecksRepository;
 import repository.UrlsRepository;
 import util.NamedRoutes;
 
@@ -17,6 +19,8 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class UrlsController {
     public static void create(Context ctx) throws SQLException {
@@ -53,22 +57,23 @@ public class UrlsController {
     }
 
     public static void index(Context ctx) throws SQLException {
-        var urls = UrlsRepository.getEntities();
-        var page = new UrlsPage(urls);
+        List<Url> urls = UrlsRepository.getEntities();
+        Map<Long, UrlCheck> lastChecks = UrlChecksRepository.getLastChecks();
+        UrlsPage page = new UrlsPage(urls, lastChecks);
         page.setFlash(ctx.consumeSessionAttribute("flash"));
         page.setFlashType(ctx.consumeSessionAttribute("flash-type"));
         ctx.render("urls/index.jte", model("page", page));
     }
 
     public static void show(Context ctx) throws SQLException {
-        var id = ctx.pathParamAsClass("id", Long.class).get();
-        var url = UrlsRepository.findById(id)
+        Long id = ctx.pathParamAsClass("id", Long.class).get();
+        Url url = UrlsRepository.findById(id)
                 .orElseThrow(() -> new NotFoundResponse("Url not found"));
-        var page = new UrlPage(url);
+        List<UrlCheck> checks = UrlChecksRepository.findEntitiesByUrlId(id);
+        UrlPage page = new UrlPage(url, checks);
+        page.setFlash(ctx.consumeSessionAttribute("flash"));
+        page.setFlashType(ctx.consumeSessionAttribute("flash-type"));
         ctx.render("urls/show.jte", model("page", page));
     }
 
-    public static void check(Context ctx)  {
-
-    }
 }
