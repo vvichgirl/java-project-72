@@ -29,7 +29,7 @@ import util.NamedRoutes;
 public class AppTest {
 
     private static Javalin app;
-    private static MockWebServer server;
+    private static MockWebServer mockServer;
     private static String baseUrl;
 
     private static Path getFixturePath(String fileName) {
@@ -45,9 +45,9 @@ public class AppTest {
     @BeforeAll
     public static void startServer() throws IOException {
         String resultHtml = readFixture("index.html");
-        server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody(resultHtml));
-        server.start();
+        mockServer = new MockWebServer();
+        mockServer.enqueue(new MockResponse().setBody(resultHtml));
+        mockServer.start();
     }
 
     @BeforeEach
@@ -57,7 +57,7 @@ public class AppTest {
 
     @AfterAll
     public static void shutDown() throws IOException {
-        server.shutdown();
+        mockServer.shutdown();
     }
 
     @Test
@@ -132,7 +132,7 @@ public class AppTest {
 
     @Test
     public void testCreateUrlCheck() throws SQLException {
-        baseUrl = server.url("/").toString();
+        baseUrl = mockServer.url("/").toString();
         Date currentDate = new Date();
         Timestamp createdAt = new Timestamp(currentDate.getTime());
         var url = new Url(baseUrl, createdAt);
@@ -145,7 +145,9 @@ public class AppTest {
             var list = UrlChecksRepository.findEntitiesByUrlId(id);
             var urlCheck = list.get(0);
             assertThat(urlCheck.getStatusCode()).isEqualTo(200);
-            assertThat(urlCheck.getDescription()).isEqualTo("Page Analyzer – сайт, который анализирует указанные страницы на SEO пригодность.");
+            assertThat(urlCheck.getDescription()).isEqualTo(
+                    "Page Analyzer – сайт, который анализирует "
+                    + "указанные страницы на SEO пригодность.");
             assertThat(urlCheck.getTitle()).isEqualTo("Page Analyzer");
             assertThat(urlCheck.getH1()).isEqualTo("Анализатор страниц");
         });
