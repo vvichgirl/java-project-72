@@ -33,7 +33,7 @@ public class UrlChecksController {
 
             Document html = Jsoup.parse(body);
             String title = html.title();
-            String h1 = html.body().getElementsByTag("h1").text();
+            String h1 = html.selectFirst("h1") == null ? "" : html.selectFirst("h1").text();
             String description = html.select("meta[name=description]").attr("content");
 
             Date currentDate = new Date();
