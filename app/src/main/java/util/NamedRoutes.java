@@ -23,7 +23,7 @@ public class NamedRoutes {
     }
 
     public static String urlCheck(String id) {
-        return "/urls/" + id + "/check";
+        return "/urls/" + id + "/checks";
     }
 
 }
