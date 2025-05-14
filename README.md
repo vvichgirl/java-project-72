@@ -8,4 +8,4 @@
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=vvichgirl_java-project-72&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=vvichgirl_java-project-72)
 
 ### Description
-[Page Analyzer](https://page-analyser-45a0.onrender.com)) - a site that analyses specified pages for SEO suitability.
+[Page Analyzer](https://page-analyser-45a0.onrender.com) - a site that analyses specified pages for SEO suitability.

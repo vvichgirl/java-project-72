@@ -33,7 +33,7 @@ public class AppTest {
     private static String baseUrl;
 
     private static Path getFixturePath(String fileName) {
-        return Paths.get("src", "test", "resources", fileName)
+        return Paths.get("src", "test", "resources", "fixtures", fileName)
                 .toAbsolutePath().normalize();
     }
 
@@ -81,7 +81,7 @@ public class AppTest {
     public void testUrlPage() throws SQLException {
         Date currentDate = new Date();
         Timestamp createdAt = new Timestamp(currentDate.getTime());
-        var url = new Url("https://www.example.com", createdAt);
+        Url url = new Url("https://www.example.com", createdAt);
         UrlsRepository.save(url);
         JavalinTest.test(app, (server, client) -> {
             var response = client.get(NamedRoutes.urlPath(url.getId()));
@@ -99,22 +99,32 @@ public class AppTest {
 
     @Test
     public void testCreateUrl() {
+        String inputUrl = "https://www.example.com";
+
         JavalinTest.test(app, (server, client) -> {
-            var requestBody = "url=https://www.example.com";
+            String requestBody = "url=" + inputUrl;
             var response = client.post(NamedRoutes.urlsPath(), requestBody);
+
             assertThat(response.code()).isEqualTo(200);
-            assertThat(response.body().string()).contains("https://www.example.com");
-            assertEquals(1, UrlsRepository.getEntities().size());
+            assertThat(response.body().string()).contains(inputUrl);
+
+            var actualUrl = UrlsRepository.getUrlByName(inputUrl);
+            assertThat(actualUrl).isNotNull();
         });
     }
 
     @Test
     public void testExistUrl() {
+        String inputUrl = "https://www.example.com";
+        String inputUrlExist = "https://www.example.com/test/1";
+
         JavalinTest.test(app, (server, client) -> {
-            var requestBody = "url=https://www.example.com";
+            String requestBody = "url=" + inputUrl;
             var response = client.post(NamedRoutes.urlsPath(), requestBody);
 
-            var requestBodyExist = "url=https://www.example.com/test/1";
+            assertEquals(1, UrlsRepository.getEntities().size());
+
+            String requestBodyExist = "url=" + inputUrlExist;
             var responseExist = client.post(NamedRoutes.urlsPath(), requestBodyExist);
 
             assertEquals(1, UrlsRepository.getEntities().size());
@@ -123,16 +133,19 @@ public class AppTest {
 
     @Test
     public void testCreateIncorrectUrl() {
+        String inputUrl = "incorrect";
+
         JavalinTest.test(app, (server, client) -> {
-            var requestBody = "url=incorrect";
+            String requestBody = "url=" + inputUrl;
             var response = client.post(NamedRoutes.urlsPath(), requestBody);
+            assertThat(response.code()).isEqualTo(200);
             assertEquals(0, UrlsRepository.getEntities().size());
         });
     }
 
     @Test
     public void testCreateUrlCheck() throws SQLException {
-        baseUrl = mockServer.url("/").toString();
+        baseUrl = mockServer.url("/").toString().replaceAll("/$", "");
         Date currentDate = new Date();
         Timestamp createdAt = new Timestamp(currentDate.getTime());
         var url = new Url(baseUrl, createdAt);
@@ -142,8 +155,9 @@ public class AppTest {
         JavalinTest.test(app, (server, client) -> {
             var response = client.post(NamedRoutes.urlCheck(id));
             assertThat(response.code()).isEqualTo(200);
-            var list = UrlChecksRepository.findEntitiesByUrlId(id);
+            var list = UrlChecksRepository.getChecksByUrlId((id));
             var urlCheck = list.get(0);
+            assertThat(urlCheck).isNotNull();
             assertThat(urlCheck.getStatusCode()).isEqualTo(200);
             assertThat(urlCheck.getDescription()).isEqualTo(
                     "Page Analyzer – сайт, который анализирует "
@@ -152,5 +166,4 @@ public class AppTest {
             assertThat(urlCheck.getH1()).isEqualTo("Анализатор страниц");
         });
     }
-
 }

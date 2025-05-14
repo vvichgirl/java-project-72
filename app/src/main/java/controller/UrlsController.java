@@ -67,9 +67,9 @@ public class UrlsController {
 
     public static void show(Context ctx) throws SQLException {
         Long id = ctx.pathParamAsClass("id", Long.class).get();
-        Url url = UrlsRepository.findById(id)
+        Url url = UrlsRepository.getUrlById(id)
                 .orElseThrow(() -> new NotFoundResponse("Url not found"));
-        List<UrlCheck> checks = UrlChecksRepository.findEntitiesByUrlId(id);
+        List<UrlCheck> checks = UrlChecksRepository.getChecksByUrlId(id);
         UrlPage page = new UrlPage(url, checks);
         page.setFlash(ctx.consumeSessionAttribute("flash"));
         page.setFlashType(ctx.consumeSessionAttribute("flash-type"));

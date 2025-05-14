@@ -22,7 +22,7 @@ public class UrlChecksController {
 
     public static void create(Context ctx) throws SQLException {
         Long idUrl = ctx.pathParamAsClass("id", Long.class).get();
-        Url url = UrlsRepository.findById(idUrl)
+        Url url = UrlsRepository.getUrlById(idUrl)
                 .orElseThrow(() -> new NotFoundResponse("Url not found"));
         String urlTitle = url.getName();
 

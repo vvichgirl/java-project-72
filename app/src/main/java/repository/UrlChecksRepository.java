@@ -34,7 +34,7 @@ public class UrlChecksRepository extends BaseRepository {
         }
     }
 
-    public static List<UrlCheck> findEntitiesByUrlId(Long urlId) throws SQLException {
+    public static List<UrlCheck> getChecksByUrlId(Long urlId) throws SQLException {
         var sql = "SELECT * FROM url_checks WHERE url_id = ?";
         try (
                 var conn = dataSource.getConnection();
