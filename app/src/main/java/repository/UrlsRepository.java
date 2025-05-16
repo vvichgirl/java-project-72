@@ -10,19 +10,18 @@ import java.util.Optional;
 
 public class UrlsRepository extends BaseRepository {
     public static void save(Url url) throws SQLException {
-        String sql = "INSERT INTO urls (name, created_at) VALUES (?, ?)";
+        String sql = "INSERT INTO urls (name) VALUES (?)";
         try (
                 var conn = dataSource.getConnection();
                 var preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
-
             preparedStatement.setString(1, url.getName());
-            preparedStatement.setTimestamp(2, url.getCreatedAt());
             preparedStatement.executeUpdate();
             var generatedKeys = preparedStatement.getGeneratedKeys();
 
             if (generatedKeys.next()) {
                 url.setId(generatedKeys.getLong(1));
+                url.setCreatedAt(generatedKeys.getTimestamp(2));
             } else {
                 throw new SQLException("DB have not returned an id after saving an entity");
             }
@@ -39,9 +38,9 @@ public class UrlsRepository extends BaseRepository {
             var resultSet = stmt.executeQuery();
             if (resultSet.next()) {
                 var urlTitle = resultSet.getString("name");
-                var createdAt = resultSet.getTimestamp("created_at");
-                var url = new Url(urlTitle, createdAt);
+                var url = new Url(urlTitle);
                 url.setId(id);
+                url.setCreatedAt(resultSet.getTimestamp("created_at"));
                 return Optional.of(url);
             }
             return Optional.empty();
@@ -59,9 +58,9 @@ public class UrlsRepository extends BaseRepository {
 
             if (resultSet.next()) {
                 var urlTitle = resultSet.getString("name");
-                var createdAt = resultSet.getTimestamp("created_at");
-                var url = new Url(urlTitle, createdAt);
+                var url = new Url(urlTitle);
                 url.setId(resultSet.getLong("id"));
+                url.setCreatedAt(resultSet.getTimestamp("created_at"));
                 return Optional.of(url);
             }
 
@@ -82,7 +81,7 @@ public class UrlsRepository extends BaseRepository {
     }
 
     public static List<Url> getEntities() throws SQLException {
-        var sql = "SELECT * FROM urls";
+        var sql = "SELECT * FROM urls ORDER BY id";
         try (
                 var conn = dataSource.getConnection();
                 var stmt = conn.prepareStatement(sql)
@@ -92,8 +91,7 @@ public class UrlsRepository extends BaseRepository {
             while (resultSet.next()) {
                 var id = resultSet.getLong("id");
                 var urlTitle = resultSet.getString("name");
-                var createdAt = resultSet.getTimestamp("created_at");
-                var url = new Url(urlTitle, createdAt);
+                var url = new Url(urlTitle);
                 url.setId(id);
                 result.add(url);
             }

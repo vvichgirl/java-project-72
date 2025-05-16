@@ -8,8 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Date;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -79,9 +77,7 @@ public class AppTest {
 
     @Test
     public void testUrlPage() throws SQLException {
-        Date currentDate = new Date();
-        Timestamp createdAt = new Timestamp(currentDate.getTime());
-        Url url = new Url("https://www.example.com", createdAt);
+        Url url = new Url("https://www.example.com");
         UrlsRepository.save(url);
         JavalinTest.test(app, (server, client) -> {
             var response = client.get(NamedRoutes.urlPath(url.getId()));
@@ -146,9 +142,7 @@ public class AppTest {
     @Test
     public void testCreateUrlCheck() throws SQLException {
         baseUrl = mockServer.url("/").toString().replaceAll("/$", "");
-        Date currentDate = new Date();
-        Timestamp createdAt = new Timestamp(currentDate.getTime());
-        var url = new Url(baseUrl, createdAt);
+        var url = new Url(baseUrl);
         UrlsRepository.save(url);
         var id = url.getId();
 

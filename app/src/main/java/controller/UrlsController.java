@@ -17,8 +17,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -35,15 +33,12 @@ public class UrlsController {
 
             String urlTitle = String.format("%s://%s%s", protocol, host, portValue);
 
-            Date currentDate = new Date();
-            Timestamp createdAt = new Timestamp(currentDate.getTime());
-
             if (UrlsRepository.existUrl(urlTitle)) {
                 ctx.sessionAttribute("flash", "Страница уже существует");
                 ctx.sessionAttribute("flash-type", "info");
                 ctx.redirect(NamedRoutes.urlsPath());
             } else {
-                Url urlObj = new Url(urlTitle, createdAt);
+                Url urlObj = new Url(urlTitle);
                 UrlsRepository.save(urlObj);
                 ctx.sessionAttribute("flash", "Страница успешно добавлена");
                 ctx.sessionAttribute("flash-type", "success");

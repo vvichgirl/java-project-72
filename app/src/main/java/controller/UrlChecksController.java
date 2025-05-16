@@ -12,8 +12,6 @@ import repository.UrlsRepository;
 import util.NamedRoutes;
 
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Date;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -36,10 +34,7 @@ public class UrlChecksController {
             String h1 = html.selectFirst("h1") == null ? "" : html.selectFirst("h1").text();
             String description = html.select("meta[name=description]").attr("content");
 
-            Date currentDate = new Date();
-            Timestamp createdAt = new Timestamp(currentDate.getTime());
-
-            UrlCheck urlCheckObj = new UrlCheck(statusCode, title, h1, description, idUrl, createdAt);
+            UrlCheck urlCheckObj = new UrlCheck(statusCode, title, h1, description, idUrl);
             UrlChecksRepository.save(urlCheckObj);
 
             ctx.redirect(NamedRoutes.urlPath(idUrl));

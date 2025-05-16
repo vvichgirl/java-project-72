@@ -21,14 +21,12 @@ public class UrlCheck {
             String title,
             String h1,
             String description,
-            Long urlId,
-            Timestamp createdAt
+            Long urlId
     ) {
         this.statusCode = statusCode;
         this.h1 = h1;
         this.title = title;
         this.description = description;
         this.urlId = urlId;
-        this.createdAt = createdAt;
     }
 }
