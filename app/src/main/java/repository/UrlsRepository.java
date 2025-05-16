@@ -20,8 +20,8 @@ public class UrlsRepository extends BaseRepository {
             var generatedKeys = preparedStatement.getGeneratedKeys();
 
             if (generatedKeys.next()) {
-                url.setId(generatedKeys.getLong(1));
-                url.setCreatedAt(generatedKeys.getTimestamp(2));
+                url.setId(generatedKeys.getLong("id"));
+                url.setCreatedAt(generatedKeys.getTimestamp("created_at"));
             } else {
                 throw new SQLException("DB have not returned an id after saving an entity");
             }

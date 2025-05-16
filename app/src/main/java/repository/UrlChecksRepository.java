@@ -26,8 +26,8 @@ public class UrlChecksRepository extends BaseRepository {
             var generatedKeys = preparedStatement.getGeneratedKeys();
 
             if (generatedKeys.next()) {
-                check.setId(generatedKeys.getLong(1));
-                check.setCreatedAt(generatedKeys.getTimestamp(2));
+                check.setId(generatedKeys.getLong("id"));
+                check.setCreatedAt(generatedKeys.getTimestamp("created_at"));
             } else {
                 throw new SQLException("DB have not returned an id after saving an entity");
             }
