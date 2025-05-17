@@ -4,30 +4,36 @@ import model.UrlCheck;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class UrlChecksRepository extends BaseRepository {
     public static void save(UrlCheck check) throws SQLException {
-        String sql = "INSERT INTO url_checks (url_id, status_code, h1, title, description) "
-                + "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at) "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
         try (
                 var conn = dataSource.getConnection();
                 var preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
+            Date currentDate = new Date();
+            Timestamp createdAt = new Timestamp(currentDate.getTime());
+
             preparedStatement.setLong(1, check.getUrlId());
             preparedStatement.setInt(2, check.getStatusCode());
             preparedStatement.setString(3, check.getH1());
             preparedStatement.setString(4, check.getTitle());
             preparedStatement.setString(5, check.getDescription());
+            preparedStatement.setTimestamp(6, createdAt);
             preparedStatement.executeUpdate();
             var generatedKeys = preparedStatement.getGeneratedKeys();
 
             if (generatedKeys.next()) {
                 check.setId(generatedKeys.getLong("id"));
-                check.setCreatedAt(generatedKeys.getTimestamp("created_at"));
+                check.setCreatedAt(createdAt);
             } else {
                 throw new SQLException("DB have not returned an id after saving an entity");
             }

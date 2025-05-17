@@ -4,24 +4,30 @@ import model.Url;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 public class UrlsRepository extends BaseRepository {
     public static void save(Url url) throws SQLException {
-        String sql = "INSERT INTO urls (name) VALUES (?)";
+        String sql = "INSERT INTO urls (name, created_at) VALUES (?, ?)";
         try (
                 var conn = dataSource.getConnection();
                 var preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
+            Date currentDate = new Date();
+            Timestamp createdAt = new Timestamp(currentDate.getTime());
+
             preparedStatement.setString(1, url.getName());
+            preparedStatement.setTimestamp(2, createdAt);
             preparedStatement.executeUpdate();
             var generatedKeys = preparedStatement.getGeneratedKeys();
 
             if (generatedKeys.next()) {
                 url.setId(generatedKeys.getLong("id"));
-                url.setCreatedAt(generatedKeys.getTimestamp("created_at"));
+                url.setCreatedAt(createdAt);
             } else {
                 throw new SQLException("DB have not returned an id after saving an entity");
             }
@@ -93,6 +99,7 @@ public class UrlsRepository extends BaseRepository {
                 var urlTitle = resultSet.getString("name");
                 var url = new Url(urlTitle);
                 url.setId(id);
+                url.setCreatedAt(resultSet.getTimestamp("created_at"));
                 result.add(url);
             }
             return result;
